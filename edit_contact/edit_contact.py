@@ -3,7 +3,7 @@ from prompt_toolkit.shortcuts import checkboxlist_dialog
 from prompt_toolkit.shortcuts import input_dialog
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.shortcuts import yes_no_dialog
-
+from datetime import datetime
 import os
 from display_contact.display_contact import display_images
 from create_contact.create_contact import add_images
@@ -201,6 +201,8 @@ def edit_contact(conn, contact_uuid):
                                                                      uuid=contact_uuid))
 
             if True in user_info_changing_counter:
+                cur.execute("UPDATE contacts SET contact_last_edited = ? WHERE uuid = ?",
+                            (datetime.now(), contact_uuid))
                 conn.commit()
                 message_dialog(title="Edit Contact",
                                text="Successfully Changed Contact Info").run()

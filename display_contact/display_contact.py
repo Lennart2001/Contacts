@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 import matplotlib.pyplot as plt
 import io
 import tkinter as tk
+from datetime import datetime
 
 
 def display_images(conn, contact_uuid):
@@ -34,6 +35,7 @@ def display_images(conn, contact_uuid):
             plt.tight_layout()
             plt.show()
 
+
 def display_contact(conn, contact_uuid):
     display_info = ["First Name",
                     "Middle Name",
@@ -55,7 +57,9 @@ def display_contact(conn, contact_uuid):
                     "Children(Yes/No)",
                     "Political Affiliation (Dem/Rep)",
                     "Met Where?",
-                    "Description"]
+                    "Description",
+                    "Account Creation",
+                    "Account Last Edited"]
 
     if conn is not None:
         cur = conn.cursor()
@@ -64,7 +68,18 @@ def display_contact(conn, contact_uuid):
 
         text = ""
         for x in range(len(display_info)):
-            text += display_info[x] + ": " + contact[x+1] + "\n"
+            if display_info[x] == "Account Last Edited" or display_info[x] == "Account Creation":
+                if display_info[x] == "Account Creation":
+                    text += "\n --> YYYY-MM-DD HH:MM:SS <--\n"
+
+                time_str = datetime.strptime(contact[x + 1], "%Y-%m-%d %H:%M:%S.%f")
+                text += display_info[x] + ": " + \
+                        str(time_str.date()) + " " + \
+                        str(time_str.hour) + ":" + \
+                        str(time_str.minute) + ":" + \
+                        str(time_str.second) + "\n"
+            else:
+                text += display_info[x] + ": " + contact[x + 1] + "\n"
 
         if yes_no_dialog(title="Display Contact",
                          text="Display Images?",
