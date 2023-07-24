@@ -4,9 +4,12 @@ from prompt_toolkit.shortcuts import input_dialog
 from prompt_toolkit.shortcuts import message_dialog
 from PIL import Image, ImageTk
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import io
 import tkinter as tk
 from datetime import datetime
+import cv2
+import numpy as np
 
 
 def display_images(conn, contact_uuid):
@@ -18,22 +21,17 @@ def display_images(conn, contact_uuid):
             message_dialog(title="Display Contact",
                            text="No Images Available for This Contact").run()
         else:
-            fig = plt.figure()
-
-            n = len(images)
-            rows = int(n ** 0.5)
-
-            if rows ** 2 < n:
-                rows += 1
-
             for i, contact in enumerate(images):
-                img = Image.open(io.BytesIO(contact[2]))
-                ax = fig.add_subplot(rows, rows, i + 1)
-                ax.imshow(img)
-                ax.set_title(f'Image {i + 1}')
+                cv2.namedWindow(f'image: {i+1}', cv2.WINDOW_NORMAL)
+                image = Image.open(io.BytesIO(contact[2]))
+                image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
-            plt.tight_layout()
-            plt.show()
+                cv2.imshow(f'Image: {i+1}', image)
+                cv2.waitKey(0)
+                cv2.destroyWindow(f'Image: {i+1}')
+
+            cv2.waitKey(1)
+            cv2.destroyAllWindows()
 
 
 def display_contact(conn, contact_uuid):
