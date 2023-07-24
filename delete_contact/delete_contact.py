@@ -1,6 +1,6 @@
 # done
 from prompt_toolkit.shortcuts import yes_no_dialog
-
+from prompt_toolkit.shortcuts import message_dialog
 
 def delete_contact(conn, contact_uuid):
     if conn is not None:
@@ -16,6 +16,8 @@ def delete_contact(conn, contact_uuid):
         if result:
             cur.execute("DELETE FROM contacts WHERE uuid = ?", (contact_uuid,))
             conn.commit()
+            message_dialog(title="Delete Contact",
+                           text="Successfully Deleted Contact From Database").run()
 
             print("Successfully Deleted Contact From Database - Delete Contact")
         else:

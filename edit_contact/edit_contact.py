@@ -1,9 +1,12 @@
-# done
+# prog
 from prompt_toolkit.shortcuts import checkboxlist_dialog
 from prompt_toolkit.shortcuts import input_dialog
 from prompt_toolkit.shortcuts import message_dialog
-import os
+from prompt_toolkit.shortcuts import yes_no_dialog
 
+import os
+from display_contact.display_contact import display_images
+from create_contact.create_contact import add_images
 
 def edit_description(conn, description_text, uuid):
     os.system("touch /Users/hacker/PycharmProjects/contacts/temp_files/cur_description.txt")
@@ -42,12 +45,72 @@ def replace_helper(conn, title, column, value, uuid):
         return True
 
 
+def edit_images(conn, contact_uuid):
+    if conn is not None:
+
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM images WHERE contact_uuid = ?", (contact_uuid,))
+        rows = cur.fetchall()
+        columns = []
+        for row in range(len(rows)):
+            columns.append([rows[row][1], f"Image {row+1}"])
+        columns.append(["add_image", "Add Image(s)"])
+
+        if len(columns) > 1:
+            results = checkboxlist_dialog(title="Edit Contact",
+                                          text="Selecting Images Will Delete Them!",
+                                          values=columns,
+                                          ok_text="OK",
+                                          cancel_text="CANCEL").run()
+            if results is not None:
+                if len(results) == 0:
+                    message_dialog(title="Edit Contact",
+                                   text="No Changes were Made!").run()
+                    return False
+                else:
+                    made_changes = False
+                    for result in results:
+                        if result == "add_image":
+                            made_changes = add_images(conn, contact_uuid)
+                        else:
+                            if yes_no_dialog(title="Edit Contact",
+                                             text="Are You Sure You Want To Delete This Image?",
+                                             yes_text="YES",
+                                             no_text="NO").run():
+                                cur.execute("DELETE FROM images WHERE image_uuid = ?", (result,))
+                                conn.commit()
+                                made_changes = True
+                            else:
+                                print("User Decided Against Deleting Image - Edit Contact")
+                    return made_changes
+            else:
+                print("User CANCELED the Selection of Images - Edit Contact")
+                return False
+        else:
+            if yes_no_dialog(title="Edit Contact",
+                             text="Would You Like to Add Images?",
+                             yes_text="YES",
+                             no_text="NO").run():
+                add_images(conn, contact_uuid)
+                return True
+
+
+
 def edit_contact(conn, contact_uuid):
     if conn is not None:
         cur = conn.cursor()
         query = "SELECT * FROM contacts WHERE uuid = ?"
         cur.execute(query, (contact_uuid,))
         rows = cur.fetchall()
+
+        cur.execute("SELECT * FROM images WHERE contact_uuid = ?", (contact_uuid,))
+        image_rows = cur.fetchall()
+        images_names = ""
+        if len(image_rows) > 0:
+            for x in range(len(image_rows)):
+                images_names += "\nImage " + str(x+1)
+        else:
+            images_names = "No Images"
 
         description = "\n" + rows[0][21].replace('. ', '.\n')
 
@@ -72,7 +135,7 @@ def edit_contact(conn, contact_uuid):
                    ("political_affiliation_dem_rep", f"Political Affiliation: {rows[0][19]}"),
                    ("met_where", f"Met Where: {rows[0][20]}"),
                    ("description", f"Description: {description}"),
-                   ]
+                   ("images", f"Images: {images_names}")]
 
         results = checkboxlist_dialog(title="Edit Contact",
                                       text="Select Which You Want To Change",
@@ -118,6 +181,17 @@ def edit_contact(conn, contact_uuid):
                     edit_description(conn,
                                      description_text=description,
                                      uuid=contact_uuid)
+                elif result == "images":
+
+                    display_images(conn, contact_uuid)
+                    user_info_changing_counter.append(edit_images(conn, contact_uuid))
+
+                    # TODO Add Editing of Images functionality here
+                    # 1) We need to show all images if there are more than 0 images.
+                    # 2) Then we need to ask, which image the user would like to Delete
+                    # 2.1) This can be done via a checkbox_dialog, which iterates over all the available images
+                    # 3) We also have a box which shows "Add Images"
+                    # 3.1) This allows the user to add an arbitrary amount of new images.
 
                 else:
                     user_info_changing_counter.append(replace_helper(conn,

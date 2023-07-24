@@ -4,6 +4,8 @@ from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.shortcuts import yes_no_dialog
 import uuid
 import datetime
+import os
+from images.images import convert_to_binary_data
 
 
 def ask_for_info(give_me):
@@ -20,6 +22,40 @@ def ask_for_info(give_me):
                 return None
         else:
             return text
+
+
+def add_images(conn, contact_uuid):
+    if conn is not None:
+        changed_contact = False
+        cur = conn.cursor()
+        while True:
+            image_path = input_dialog(title="Create Contact",
+                                      text="Please give the image Path:",
+                                      ok_text="ENTER",
+                                      cancel_text="CANCEL").run()
+            if image_path is not None and os.path.exists(image_path.strip(" ")):
+                image_data = convert_to_binary_data(image_path.strip(" "))
+                image_uuid = str(uuid.uuid4())
+                now = str(datetime.datetime.now())
+                cur.execute("INSERT INTO images (contact_uuid, image_uuid, image, image_added) VALUES (?,?,?,?)",
+                            (contact_uuid, image_uuid, image_data, now))
+
+                print("You successfully Added an Image - Create Contact")
+                changed_contact = True
+            else:
+                message_dialog(title="Add Image",
+                               text="You did not provide a Proper Image Path",
+                               ok_text="OK").run()
+
+                print("User did not provide a Proper Image Path - Create Contact")
+
+            if not yes_no_dialog(title="Create Contact",
+                                 text="Would You Like to Add an(other) Image to This Contact?",
+                                 yes_text="YES",
+                                 no_text="NO").run():
+                break
+        conn.commit()
+        return changed_contact
 
 
 def create_contact(conn):
@@ -63,18 +99,22 @@ def create_contact(conn):
                 no_info_given += 1
             supplied_info.append(received_info.title())
 
+        cur = conn.cursor()
+
+        add_images(conn, contact_uuid)
+
         if no_info_given > 6:
             if not yes_no_dialog(title="Create Contact",
                                  text=f"Are you sure you want to create this contact?\nYou are missing {no_info_given} info slots!",
                                  yes_text="CREATE",
                                  no_text="DELETE").run():
+                conn.rollback()
                 return
 
         now = str(datetime.datetime.now())
         supplied_info.append(now)
         supplied_info.append(now)
 
-        cur = conn.cursor()
         cur.execute("INSERT INTO contacts (uuid,"
                     "first_name,"
                     "middle_name,"
@@ -103,11 +143,13 @@ def create_contact(conn):
 
         conn.commit()
 
-        cur.execute("SELECT * FROM contacts WHERE uuid = ?", (contact_uuid,))
-        rows = cur.fetchall()
 
-        for row in rows:
-            print(row)
+        # # Kind of unnessary - Because the user won't really see this
+        # cur.execute("SELECT * FROM contacts WHERE uuid = ?", (contact_uuid,))
+        # rows = cur.fetchall()
+        #
+        # for row in rows:
+        #     print(row)
 
         message_dialog(title="Create Contact",
                        text="You Successfully Created a Contact").run()
@@ -115,30 +157,3 @@ def create_contact(conn):
     else:
         print("Could not CREATE CONTACT because the Connection to Database was NONE - Create Contact")
 
-
-# CREATE TABLE contacts (
-#     uuid TEXT NOT NULL,
-#     first_name TEXT,
-#     middle_name TEXT,
-#     last_name TEXT,
-#     nickname TEXT,
-#     date_of_birth DATE,
-#     gender TEXT,
-#     ethnicity TEXT,
-#     nationality TEXT,
-#     spoken_languages TEXT,
-#     address TEXT,
-#     company_email TEXT,
-#     personal_email TEXT,
-#     company_phone_number TEXT,
-#     personal_phone_number TEXT,
-#     home_phone_number TEXT,
-#     current_company TEXT,
-#     occupation TEXT,
-#     children_yes_no TEXT,
-#     political_affiliation_dem_rep TEXT,
-#     met_where TEXT,
-#     description TEXT,
-#     contact_created TEXT,
-#     contact_last_edited TEXT
-# );
