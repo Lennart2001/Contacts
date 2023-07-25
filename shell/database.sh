@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ..
+
 DIRECTORY=$(pwd)
 DATABASE_NAME="data.db"
 DATABASE_PATH="${DIRECTORY}/${DATABASE_NAME}"
