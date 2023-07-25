@@ -66,7 +66,10 @@ def select_path():
 def main():
 
     if check_password():
-        subprocess.run("./shell/script.sh")
+        os.system("chmod +x shell/installs.sh")
+        os.system("chmod +x shell/database.sh")
+        subprocess.run("shell/installs.sh")
+        subprocess.run("shell/database.sh")
 
         conn = create_connection("data.db")
 

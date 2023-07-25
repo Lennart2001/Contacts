@@ -16,8 +16,8 @@ def delete_contact(conn, contact_uuid):
                                no_text="CANCEL").run()
         if result:
             cur.execute("DELETE FROM contacts WHERE uuid = ?", (contact_uuid,))
-            cur.execute("DELETE FROM images WHERE uuid = ?", (contact_uuid,))
-            cur.execute("DELETE FROM documents WHERE uuid = ?", (contact_uuid,))
+            cur.execute("DELETE FROM images WHERE contact_uuid = ?", (contact_uuid,))
+            cur.execute("DELETE FROM documents WHERE contact_uuid = ?", (contact_uuid,))
             conn.commit()
             message_dialog(title="Delete Contact",
                            text="Successfully Deleted Contact From Database").run()
