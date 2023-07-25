@@ -5,8 +5,9 @@ from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.shortcuts import yes_no_dialog
 from datetime import datetime
 import os
-from display_contact.display_contact import display_images
+from images.images import display_images
 from create_contact.create_contact import add_images
+
 
 def edit_description(conn, description_text, uuid):
     os.system("touch /Users/hacker/PycharmProjects/contacts/temp_files/cur_description.txt")

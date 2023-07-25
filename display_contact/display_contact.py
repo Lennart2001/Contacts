@@ -1,37 +1,9 @@
 # prog
 from prompt_toolkit.shortcuts import yes_no_dialog
-from prompt_toolkit.shortcuts import input_dialog
 from prompt_toolkit.shortcuts import message_dialog
-from PIL import Image, ImageTk
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import io
-import tkinter as tk
 from datetime import datetime
-import cv2
-import numpy as np
 
-
-def display_images(conn, contact_uuid):
-    if conn is not None:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM images WHERE contact_uuid = ?", (contact_uuid,))
-        images = cur.fetchall()
-        if len(images) == 0:
-            message_dialog(title="Display Contact",
-                           text="No Images Available for This Contact").run()
-        else:
-            for i, contact in enumerate(images):
-                cv2.namedWindow(f'image: {i+1}', cv2.WINDOW_NORMAL)
-                image = Image.open(io.BytesIO(contact[2]))
-                image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-
-                cv2.imshow(f'Image: {i+1}', image)
-                cv2.waitKey(0)
-                cv2.destroyWindow(f'Image: {i+1}')
-
-            cv2.waitKey(1)
-            cv2.destroyAllWindows()
+from images.images import display_images
 
 
 def display_contact(conn, contact_uuid):
