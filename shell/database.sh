@@ -5,7 +5,7 @@ DIRECTORY=$(pwd)
 DATABASE_NAME="data.db"
 DATABASE_PATH="${DIRECTORY}/${DATABASE_NAME}"
 
-if [ ! -f $DATABASE_PATH ]; then
+if [ ! -f "$DATABASE_PATH" ]; then
   echo "Database doesn't exist."
   echo "Creating Database now..."
   sqlite3 "$DATABASE_PATH" "CREATE TABLE contacts (

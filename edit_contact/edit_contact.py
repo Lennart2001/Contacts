@@ -187,13 +187,6 @@ def edit_contact(conn, contact_uuid):
                     display_images(conn, contact_uuid)
                     user_info_changing_counter.append(edit_images(conn, contact_uuid))
 
-                    # TODO Add Editing of Images functionality here
-                    # 1) We need to show all images if there are more than 0 images.
-                    # 2) Then we need to ask, which image the user would like to Delete
-                    # 2.1) This can be done via a checkbox_dialog, which iterates over all the available images
-                    # 3) We also have a box which shows "Add Images"
-                    # 3.1) This allows the user to add an arbitrary amount of new images.
-
                 else:
                     user_info_changing_counter.append(replace_helper(conn,
                                                                      title=result.replace("_", " ").title(),
