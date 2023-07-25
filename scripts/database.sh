@@ -1,9 +1,9 @@
 #!/bin/bash
 
-
+cd ..
 DIRECTORY=$(pwd)
 DATABASE_NAME="data.db"
-DATABASE_PATH="${DIRECTORY}/${DATABASE_NAME}"
+DATABASE_PATH="${DIRECTORY}/assets/${DATABASE_NAME}"
 
 if [ ! -f "$DATABASE_PATH" ]; then
   echo "Database doesn't exist."
@@ -33,11 +33,6 @@ if [ ! -f "$DATABASE_PATH" ]; then
     description TEXT,
     contact_created TEXT,
     contact_last_edited TEXT);
-    CREATE TABLE documents (
-    contact_uuid TEXT NOT NULL,
-    document_uuid TEXT NOT NULL,
-    document BLOB NOT NULL,
-    document_added TEXT NOT NULL);
     CREATE TABLE images (
     contact_uuid TEXT NOT NULL,
     image_uuid TEXT NOT NULL,

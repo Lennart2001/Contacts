@@ -66,12 +66,12 @@ def select_path():
 def main():
 
     if check_password():
-        os.system("chmod +x shell/installs.sh")
-        os.system("chmod +x shell/database.sh")
-        subprocess.run("shell/installs.sh")
-        subprocess.run("shell/database.sh")
+        os.system("chmod +x ../scripts/installs.sh")
+        os.system("chmod +x ../scripts/database.sh")
+        subprocess.run("../scripts/installs.sh")
+        subprocess.run("../scripts/database.sh")
 
-        conn = create_connection("data.db")
+        conn = create_connection("../assets/data.db")
 
         if conn is not None:
             while True:

@@ -25,7 +25,7 @@ def create_connection(db_file):
 
 
 def insert_into_database(test):
-    conn = create_connection("data.db")
+    conn = create_connection("../../assets/data.db")
 
     for x in range(10000):
         if x % 100 == 0:

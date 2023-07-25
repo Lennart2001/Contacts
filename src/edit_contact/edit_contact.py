@@ -10,25 +10,28 @@ from create_contact.create_contact import add_images
 
 
 def edit_description(conn, description_text, uuid):
-    os.system("touch /Users/hacker/PycharmProjects/contacts/temp_files/cur_description.txt")
-    with open("/Users/hacker/PycharmProjects/contacts/temp_files/cur_description.txt", "w") as file:
+    file_path = "../assets/cur_description.txt"
+    os.system(f"touch {file_path}")
+    with open(f"{file_path}", "w") as file:
         file.write(description_text.strip('\n').replace('.\n', '. '))
         file.close()
-    os.system("nano /Users/hacker/PycharmProjects/contacts/temp_files/cur_description.txt")
+    os.system(f"nano {file_path}")
     text = ""
-    with open("/Users/hacker/PycharmProjects/contacts/temp_files/cur_description.txt", "r") as file:
+    with open(f"{file_path}", "r") as file:
         lines = file.readlines()
         for line in lines:
             text += line
         file.close()
-    os.system("rm /Users/hacker/PycharmProjects/contacts/temp_files/cur_description.txt")
+    os.system(f"rm {file_path}")
     if description_text == lines:
         print("No Changes to Description - Edit Contact")
+        return False
     else:
         cur = conn.cursor()
         query = "UPDATE contacts SET description = ? WHERE uuid = ?"
         values = (text, uuid)
         cur.execute(query, values)
+        return True
 
 
 def replace_helper(conn, title, column, value, uuid):
@@ -54,7 +57,7 @@ def edit_images(conn, contact_uuid):
         rows = cur.fetchall()
         columns = []
         for row in range(len(rows)):
-            columns.append([rows[row][1], f"Image {row+1}"])
+            columns.append([rows[row][1], f"Image {row + 1}"])
         columns.append(["add_image", "Add Image(s)"])
 
         if len(columns) > 1:
@@ -96,7 +99,6 @@ def edit_images(conn, contact_uuid):
                 return True
 
 
-
 def edit_contact(conn, contact_uuid):
     if conn is not None:
         cur = conn.cursor()
@@ -109,7 +111,7 @@ def edit_contact(conn, contact_uuid):
         images_names = ""
         if len(image_rows) > 0:
             for x in range(len(image_rows)):
-                images_names += "\nImage " + str(x+1)
+                images_names += "\nImage " + str(x + 1)
         else:
             images_names = "No Images"
 
@@ -179,9 +181,9 @@ def edit_contact(conn, contact_uuid):
         else:
             for result in results:
                 if result == "description":
-                    edit_description(conn,
-                                     description_text=description,
-                                     uuid=contact_uuid)
+                    user_info_changing_counter.append(edit_description(conn,
+                                                                       description_text=description,
+                                                                       uuid=contact_uuid))
                 elif result == "images":
 
                     display_images(conn, contact_uuid)
