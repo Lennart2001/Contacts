@@ -1,13 +1,13 @@
-#prog
+#done
 from prompt_toolkit.shortcuts import radiolist_dialog
 from prompt_toolkit.shortcuts import input_dialog
 from create_contact import create_contact
 from search_contacts import search_contact
-from end_session import end_session
 import sqlite3
 from sqlite3 import Error
 import os
 import time
+import subprocess
 
 
 def create_connection(db_file):
@@ -66,6 +66,7 @@ def select_path():
 def main():
 
     if check_password():
+        subprocess.run("./shell/script.sh")
 
         conn = create_connection("data.db")
 
